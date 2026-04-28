@@ -128,36 +128,23 @@ Core-sync/
 │   └── particles/
 │── README.md
 ```
-
-### Responsabilidades:
-
-**main.py**
+ Responsabilidades:
+*main.py*
 → execução principal
-
-**player.py**
+*player.py*
 → lógica do jogador
-
-**enemy.py**
+*enemy.py*
 → plasma e obstáculos
-
-**map.py**
+*map.py*
 → geração do mapa
-
-**items.py**
+*items.py*
 → moedas e power-ups
-
-**effects.py**
+*effects.py*
 → partículas e efeitos visuais
-
-**settings.py**
+*settings.py*
 → configurações gerais
-
----
-
-## 12. Funcionalidades Mínimas
-
+# 12. Funcionalidades Mínimas
 Versão inicial obrigatória:
-
 * Movimento deslizante
 * Sistema de colisão
 * Mapa funcional
@@ -166,45 +153,28 @@ Versão inicial obrigatória:
 * Sistema de score
 * Plasma subindo
 * Game over
-
----
-
-## 13. Melhorias Futuras
-
+# 13. Melhorias Futuras
 Possíveis melhorias:
-
 * Novos power-ups
 * Novos tipos de obstáculos
 * Skins para personagem
 * Sons dinâmicos
 * Efeitos visuais avançados
 * Modo desafio
-
----
-
-## Requisitos Funcionais
-
+# Requisitos Funcionais
 * Movimento deslizante automático
 * Colisão com paredes
 * Partículas ao impacto
 * Sistema de pontos e moedas
 * Plasma subindo continuamente
 * Itens temporários
-
----
-
-## Requisitos Não Funcionais
-
+# Requisitos Não Funcionais
 * Movimento em grade lógica
 * Geração procedural com blocos
 * Alto contraste visual
 * Buffer de input para fluidez
 * Performance estável
-
----
-
-## Diferenciais Técnicos
-
+# Diferenciais Técnicos
 * Ghost effect durante movimento
 * Colisão precisa com pygame.mask
 * Sistema de iluminação local
