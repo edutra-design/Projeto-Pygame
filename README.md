@@ -25,9 +25,9 @@ Ele desliza automaticamente até bater em uma parede ou obstáculo.
 * Ímã de coleta (temporário)
 
 Diferenciais:
-* rastro visual (ghost effect)
-* Brilho circular em volta do personagem
-*  4. Inimigos e Obstáculos
+rastro visual (ghost effect)
+Brilho circular em volta do personagem
+4. Inimigos e Obstáculos
 Obstáculos:
 * Espinhos
 * Paredes
@@ -35,11 +35,11 @@ Obstáculos:
 Inimigos:
 Onda de plasma (principal ameaça)
 Comportamentos:
-**Paredes:**
+Paredes:
 * Bloqueiam movimento
-**Espinhos:**
+Espinhos:
 * Dano ao tocar
-**Plasma:**
+Plasma:
 * Sobe continuamente pelo mapa
 Colisão:
 Ao colidir:
@@ -109,10 +109,8 @@ O jogo é por fases, então a meta é passar delas e ir aumentando a dificuldade
 * Espinhos causam dano
 * Plasma sobe sem parar
 * Itens só podem ser coletados por contato
-* Movimento segue uma grade lógica
-
-## 11. Estrutura do Projeto
-
+* Movimento segue uma grade lógica 
+11. Estrutura do Projeto
 ```text
 Core-sync/
 │── main.py
@@ -143,7 +141,7 @@ Core-sync/
 → partículas e efeitos visuais
 *settings.py*
 → configurações gerais
-# 12. Funcionalidades Mínimas
+12. Funcionalidades Mínimas
 Versão inicial obrigatória:
 * Movimento deslizante
 * Sistema de colisão
@@ -153,7 +151,7 @@ Versão inicial obrigatória:
 * Sistema de score
 * Plasma subindo
 * Game over
-# 13. Melhorias Futuras
+13. Melhorias Futuras
 Possíveis melhorias:
 * Novos power-ups
 * Novos tipos de obstáculos
@@ -161,20 +159,20 @@ Possíveis melhorias:
 * Sons dinâmicos
 * Efeitos visuais avançados
 * Modo desafio
-# Requisitos Funcionais
+Requisitos Funcionais
 * Movimento deslizante automático
 * Colisão com paredes
 * Partículas ao impacto
 * Sistema de pontos e moedas
 * Plasma subindo continuamente
 * Itens temporários
-# Requisitos Não Funcionais
+Requisitos Não Funcionais
 * Movimento em grade lógica
 * Geração procedural com blocos
 * Alto contraste visual
 * Buffer de input para fluidez
 * Performance estável
-# Diferenciais Técnicos
+Diferenciais Técnicos
 * Ghost effect durante movimento
 * Colisão precisa com pygame.mask
 * Sistema de iluminação local
