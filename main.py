@@ -32,10 +32,11 @@ inimigo = Inimigo(300, 300, 40)
 rodando = True
 
 while rodando:
-
+    posicao_mouse = pygame.mouse.get_pos()
+    click_mouse = False 
+  
     for evento in pygame.event.get():
-
-        if evento.type == pygame.QUIT:
+       if evento.type == pygame.QUIT:
             rodando = False
 
     TELA.fill((10, 10, 25))
