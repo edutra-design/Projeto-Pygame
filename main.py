@@ -3,7 +3,7 @@ import sys
 import os 
 
 from personagem import Jogador
-from inimigo import Inimigos
+from inimigos import Inimigo
 
 pygame.init()
 
@@ -20,7 +20,6 @@ cor_botao_hover = (80, 180, 255)
 fonte_titulo = pygame.font.SysFont("Arial", 60, bold=True)
 fonte_menu = pygame.font.SysFont("Arial", 30)
 
-# O jogo agora pode alternar entre "MENU", "JOGANDO" e "CREDITOS"
 estado_jogo = "MENU"
 
 def desenhar_texto(texto, fonte, cor, x, y):
@@ -29,13 +28,11 @@ def desenhar_texto(texto, fonte, cor, x, y):
     retangulo_texto = imagem_texto.get_rect(center=(x, y))
     tela.blit(imagem_texto, retangulo_texto)
 
-# Definição física dos botões da tela inicial
 botao_jogar = pygame.Rect(largura // 2 - 100, 250, 200, 50)
-botao_creditos = pygame.Rect(largura // 2 - 100, 330, 200, 50)  # Novo botão de Créditos
-botao_sair = pygame.Rect(largura // 2 - 100, 410, 200, 50)     # Ajustada a altura do botão Sair
-
+botao_creditos = pygame.Rect(largura // 2 - 100, 330, 200, 50)  
+botao_sair = pygame.Rect(largura // 2 - 100, 410, 200, 50)     
 jogador = Jogador(100, 100, 40)
-inimigo = Inimigo(300, 300, 40)
+inimigos = Inimigo(300, 300, 40)
 
 rodando = True
 while rodando:
@@ -48,14 +45,13 @@ while rodando:
             if evento.button == 1:
                 if estado_jogo == "MENU":
                     if botao_jogar.collidepoint(posicao_mouse):
-                        estado_jogo = "JOGANDO":
+                        estado_jogo = "JOGANDO"
                     elif botao_creditos.collidepoint(posicao_mouse):
-                        estado_jogo = "CREDITOS"  # Muda para a tela de créditos
+                        estado_jogo = "CREDITOS" 
                     elif botao_sair.collidepoint(posicao_mouse):
                         rodando = False
         if evento.type == pygame.KEYDOWN:
             if evento.key == pygame.K_ESCAPE:
-                # Se estiver jogando OU nos créditos, o ESC volta para o Menu
                 if estado_jogo == "JOGANDO" or estado_jogo == "CREDITOS":
                     estado_jogo = "MENU"
 
@@ -64,30 +60,27 @@ while rodando:
     if estado_jogo == "MENU":
         desenhar_texto("CORE-SYNC", fonte_titulo, cor_texto, largura // 2, 130)
         
-        # Lógica de Hover (mudar de cor quando o mouse passa por cima)
         cor_atual_jogar = cor_botao_hover if botao_jogar.collidepoint(posicao_mouse) else cor_botao
         cor_atual_creditos = cor_botao_hover if botao_creditos.collidepoint(posicao_mouse) else cor_botao
         cor_atual_sair = cor_botao_hover if botao_sair.collidepoint(posicao_mouse) else cor_botao
 
-        # Desenha os retângulos dos botões
         pygame.draw.rect(tela, cor_atual_jogar, botao_jogar, border_radius=10)
         pygame.draw.rect(tela, cor_atual_creditos, botao_creditos, border_radius=10)
         pygame.draw.rect(tela, cor_atual_sair, botao_sair, border_radius=10)
 
-        # Desenha os textos internos dos botões
         desenhar_texto("JOGAR", fonte_menu, cor_texto, largura // 2, 275)
         desenhar_texto("CRÉDITOS", fonte_menu, cor_texto, largura // 2, 355)
         desenhar_texto("SAIR", fonte_menu, cor_texto, largura // 2, 435)
 
     elif estado_jogo == "JOGANDO":
         jogador.desenhar(tela)
-        inimigo.desenhar(tela)
+        inimigos.desenhar(tela)
         
         desenhar_texto("Você está dentro do jogo!", fonte_titulo, (100, 255, 100), largura // 2, altura // 2)
         desenhar_texto("Pressione ESC para voltar ao Menu", fonte_menu, cor_texto, largura // 2, altura // 2 + 80)
 
     elif estado_jogo == "CREDITOS":
-        # Nova tela de créditos exibida ao mudar o estado do jogo
+       
         desenhar_texto("CRÉDITOS", fonte_titulo, cor_texto, largura // 2, 150)
         desenhar_texto("Desenvolvido por: Ana Cândida, Emilly Vitória e Júlia Dutra", fonte_menu, (200, 200, 200), largura // 2, altura // 2 - 20)
         desenhar_texto("Jogo criado em Python com Pygame", fonte_menu, (200, 200, 200), largura // 2, altura // 2 + 30)
