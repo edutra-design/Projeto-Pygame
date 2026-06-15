@@ -61,9 +61,6 @@ while rodando:
 
     tela.fill(cor_fundo)
 
-    jogador.desenhar(tela)
-    inimigo.desenhar(tela)
-
     if estado_jogo == "MENU":
         desenhar_texto("CORE-SYNC", fonte_titulo, cor_texto, largura // 2, 130)
         
