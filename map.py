@@ -4,7 +4,7 @@ from personagem import Entidade
 
 class Parede(Entidade):
 
-    def _init_(self, x, y, tamanho):
+    def __init__(self, x, y, tamanho):
         super()._init_(x, y, tamanho, (138, 0, 196))
 
     def desenhar(self, tela):
