@@ -3,7 +3,7 @@ import sys
 import os 
 
 from personagem import Jogador
-from inimigo import Inimigo
+from inimigo import Inimigos
 
 pygame.init()
 
