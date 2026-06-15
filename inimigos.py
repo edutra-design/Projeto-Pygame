@@ -4,7 +4,7 @@ from personagem import Entidade
 
 class Inimigo(Entidade):
 
-    def _init_(self, x, y, tamanho):
+    def __init__(self, x, y, tamanho):
         super()._init_(x, y, tamanho, (255, 0, 0))
 
     def desenhar(self, tela):
