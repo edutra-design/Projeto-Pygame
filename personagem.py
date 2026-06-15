@@ -3,7 +3,7 @@ import pygame
 
 class Entidade:
 
-    def _init_(self, x, y, tamanho, cor):
+    def __init__(self, x, y, tamanho, cor):
         self.x = x
         self.y = y
         self.tamanho = tamanho
@@ -12,7 +12,7 @@ class Entidade:
 
 class Jogador(Entidade):
 
-    def _init_(self, x, y, tamanho):
+    def __init__(self, x, y, tamanho):
         super()._init_(x, y, tamanho, (0, 255, 255))
 
     def desenhar(self, tela):
