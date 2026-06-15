@@ -34,7 +34,7 @@ botao_jogar = pygame.Rect(largura // 2 - 100, 250, 200, 50)
 botao_creditos = pygame.Rect(largura // 2 - 100, 330, 200, 50)  # Novo botão de Créditos
 botao_sair = pygame.Rect(largura // 2 - 100, 410, 200, 50)     # Ajustada a altura do botão Sair
 
-jodador = Jogador(100, 100, 40)
+jogador = Jogador(100, 100, 40)
 inimigo = Inimigo(300, 300, 40)
 
 rodando = True
