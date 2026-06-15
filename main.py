@@ -48,7 +48,7 @@ while rodando:
             if evento.button == 1:
                 if estado_jogo == "MENU":
                     if botao_jogar.collidepoint(posicao_mouse):
-                        estado_jogo = "JOGANDO"
+                        estado_jogo = "JOGANDO":
                     elif botao_creditos.collidepoint(posicao_mouse):
                         estado_jogo = "CREDITOS"  # Muda para a tela de créditos
                     elif botao_sair.collidepoint(posicao_mouse):
@@ -83,6 +83,9 @@ while rodando:
         desenhar_texto("SAIR", fonte_menu, cor_texto, largura // 2, 435)
 
     elif estado_jogo == "JOGANDO":
+        jogador.desenhar(tela)
+        inimigo.desenhar(tela)
+        
         desenhar_texto("Você está dentro do jogo!", fonte_titulo, (100, 255, 100), largura // 2, altura // 2)
         desenhar_texto("Pressione ESC para voltar ao Menu", fonte_menu, cor_texto, largura // 2, altura // 2 + 80)
 
