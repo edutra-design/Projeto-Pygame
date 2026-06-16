@@ -1,16 +1,22 @@
-#map.py
 import pygame
-from personagem import Entidade
 
-class Parede(Entidade):
+TAMANHO_BLOCO = 50
 
-    def __init__(self, x, y, tamanho):
-        super()._init_(x, y, tamanho, (138, 0, 196))
+MAPA = [
+    [1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,3,0,0,0,1,0,0,0,0,2,1],
+    [1,0,1,1,0,1,0,1,1,0,0,1],
+    [1,0,0,1,0,0,0,0,1,0,1,1],
+    [1,1,0,1,1,1,1,0,1,0,0,1],
+    [1,0,0,0,0,4,1,0,1,1,0,1],
+    [1,0,1,1,0,0,1,0,0,0,0,1],
+    [1,0,1,5,0,1,1,1,1,1,0,1],
+    [1,0,0,0,0,0,0,0,6,1,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1]
+]
 
-    def desenhar(self, tela):
+def desenhar_mapa(tela):
+    for linha in range(len(MAPA)):
+        for coluna in
 
-        pygame.draw.rect(
-            tela,
-            self.cor,
-            (self.x, self.y, self.tamanho, self.tamanho)
-        )
+
