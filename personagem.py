@@ -1,6 +1,5 @@
 import pygame
 
-
 class Entidade:
 
     def __init__(self, x, y, tamanho, cor):
