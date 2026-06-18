@@ -7,6 +7,9 @@ from inimigos import Inimigo
 
 pygame.init()
 
+# Configuração do Relógio (Controla os FPS do jogo)
+relogio = pygame.time.Clock()
+
 largura = 800
 altura = 600
 tela = pygame.display.set_mode((largura, altura))
@@ -36,6 +39,9 @@ inimigos = Inimigo(300, 300, 40)
 
 rodando = True
 while rodando:
+    # Garante que o jogo rode de forma constante a 60 FPS
+    relogio.tick(60)
+    
     posicao_mouse = pygame.mouse.get_pos()
 
     for evento in pygame.event.get():
@@ -73,6 +79,11 @@ while rodando:
         desenhar_texto("SAIR", fonte_menu, cor_texto, largura // 2, 435)
 
     elif estado_jogo == "JOGANDO":
+        # --- ATUALIZAÇÃO DE LÓGICA ---
+        # Move o jogador passando as dimensões para o limite de tela
+        jogador.mover(largura, altura)
+        
+        # --- DESENHOS ---
         jogador.desenhar(tela)
         inimigos.desenhar(tela)
         
@@ -80,7 +91,6 @@ while rodando:
         desenhar_texto("Pressione ESC para voltar ao Menu", fonte_menu, cor_texto, largura // 2, altura // 2 + 80)
 
     elif estado_jogo == "CREDITOS":
-       
         desenhar_texto("CRÉDITOS", fonte_titulo, cor_texto, largura // 2, 150)
         desenhar_texto("Desenvolvido por: Ana Cândida, Emilly Vitória e Júlia Dutra", fonte_menu, (200, 200, 200), largura // 2, altura // 2 - 20)
         desenhar_texto("Jogo criado em Python com Pygame", fonte_menu, (200, 200, 200), largura // 2, altura // 2 + 30)
