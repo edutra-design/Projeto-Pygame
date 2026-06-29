@@ -1,3 +1,4 @@
+#personagem.py
 import pygame
 
 class Entidade:
@@ -9,14 +10,14 @@ class Entidade:
         self.cor = cor
         self.sprite = None
 
-    def obter_rect(self) -> pygame.Rect:
+    def obter_rect(self) -> pygame.Rect: # 🔥 Corrigido de obtener_rect para obter_rect
         return pygame.Rect(int(self.x), int(self.y), self.tamanho, self.tamanho)
 
     def desenhar(self, tela: pygame.Surface):
         if self.sprite:
             tela.blit(self.sprite, (int(self.x), int(self.y)))
         else:
-            pygame.draw.rect(tela, self.cor, self.obter_rect())
+            pygame.draw.rect(tela, self.cor, self.obter_rect()) # 🔥 Corrigido aqui também
 
 
 class Jogador(Entidade):
@@ -38,32 +39,29 @@ class Jogador(Entidade):
         """Movimentação por deslize que envia os dados para o gerador de efeitos."""
         teclas = pygame.key.get_pressed()
         
-        # 1. Alimenta o Buffer de Input
         if teclas[pygame.K_a] or teclas[pygame.K_LEFT]:     self.buffer_x, self.buffer_y = -1, 0
         elif teclas[pygame.K_d] or teclas[pygame.K_RIGHT]:  self.buffer_x, self.buffer_y = 1, 0
         elif teclas[pygame.K_w] or teclas[pygame.K_UP]:     self.buffer_x, self.buffer_y = 0, -1
         elif teclas[pygame.K_s] or teclas[pygame.K_DOWN]:   self.buffer_x, self.buffer_y = 0, 1
 
-        # 2. Se estiver parado, consome o comando em fila
         if self.direcao_x == 0 and self.direcao_y == 0:
             if self.buffer_x != 0 or self.buffer_y != 0:
                 self.direcao_x = self.buffer_x
                 self.direcao_y = self.buffer_y
                 self.buffer_x, self.buffer_y = 0, 0
 
-        # 🔥 CONEXÃO ATIVA: Envia a posição atual para gerar o rastro azul se estiver se movendo
         if self.direcao_x != 0 or self.direcao_y != 0:
             gerenciador_efeitos.adicionar_rastro(self.x, self.y, self.tamanho, self.cor)
 
-        # 3. Colisão no Eixo X
+        # Colisão no Eixo X
         pos_antiga_x = self.x
         self.x += self.direcao_x * self.velocidade
-        rect_jogador = self.obter_rect()
+        rect_jogador = self.obter_rect() # Agora vai encontrar o método corretamente!
         if self.x < 0 or self.x > largura_tela - self.tamanho or any(rect_jogador.colliderect(p) for p in lista_paredes):
             self.x = pos_antiga_x
             self.direcao_x = 0
 
-        # 4. Colisão no Eixo Y
+        # Colisão no Eixo Y
         pos_antiga_y = self.y
         self.y += self.direcao_y * self.velocidade
         rect_jogador = self.obter_rect()
