@@ -1,8 +1,10 @@
+#main.py
 import pygame
 import sys
 from personagem import Jogador
 from inimigos import Inimigo
-from efeitos import EfeitoRastro # 🔥 IMPORTAÇÃO DO NOVO SISTEMA
+from efeitos import EfeitoRastro 
+import map # 🔥 IMPORTA O SEU NOVO ARQUIVO DE MAPA
 
 pygame.init()
 
@@ -25,9 +27,13 @@ botao_creditos = pygame.Rect(LARGURA // 2 - 100, 330, 200, 50)
 botao_sair = pygame.Rect(LARGURA // 2 - 100, 410, 200, 50)
 
 # Instanciação das Entidades e do Gerenciador de Efeitos
-jogador = Jogador(40.0, 40.0, 40)
-inimigos = Inimigo(400.0, 240.0, 40)
-gerenciador_efeitos = EfeitoRastro() # 🔥 CRIA O OBJETO DE EFEITOS
+# 💡 Ajustei o tamanho para 38 para o jogador e inimigo caberem e se moverem livremente dentro dos blocos de 50
+jogador = Jogador(55.0, 55.0, 38) 
+inimigos = Inimigo(500.0, 400.0, 38)
+gerenciador_efeitos = EfeitoRastro() 
+
+# 🔥 CARREGA AS COLISÕES BASEADO NA MATRIZ DO MAPA
+lista_paredes_do_seu_mapa = map.carregar_mapa()
 
 estado_jogo = "MENU"
 rodando = True
@@ -54,13 +60,14 @@ while rodando:
         elif evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
             if estado_jogo == "MENU":
                 if botao_jogar.collidepoint(posicao_mouse):
-                    jogador.x, jogador.y = 40.0, 40.0
+                    # Reinicia posições dentro do primeiro bloco livre do mapa
+                    jogador.x, jogador.y = 55.0, 55.0
                     jogador.direcao_x, jogador.direcao_y = 0, 0
                     jogador.buffer_x, jogador.buffer_y = 0, 0
-                    inimigos.x, inimigos.y = 400.0, 240.0
+                    inimigos.x, inimigos.y = 500.0, 400.0
                     inimigos.estado = "PATRULHA"
-                    gerenciador_efeitos.rastros.clear() # Limpa rastros velhos
-                    gerenciador_efeitos.particulas.clear() # Limpa faíscas velhas
+                    gerenciador_efeitos.rastros.clear() 
+                    gerenciador_efeitos.particulas.clear() 
                     estado_jogo = "JOGANDO"
                 elif botao_creditos.collidepoint(posicao_mouse):
                     estado_jogo = "CREDITOS"
@@ -81,11 +88,7 @@ while rodando:
         desenhar_botao(botao_sair, "SAIR", posicao_mouse)
         
     elif estado_jogo == "JOGANDO":
-        # ⚠️ SUBSITUA ISSO: mude para a lista de Rects de colisão gerada pelo SEU arquivo de mapa
-        lista_paredes_do_seu_mapa = []
-
         # --- PROCESSAMENTO LOGICO ---
-        # Passa o gerenciador_efeitos para o jogador registrar onde passou
         jogador.mover(LARGURA, ALTURA, lista_paredes_do_seu_mapa, gerenciador_efeitos)
         inimigos.atualizar_ia(LARGURA, ALTURA, lista_paredes_do_seu_mapa, jogador)
         
@@ -93,16 +96,17 @@ while rodando:
             estado_jogo = "MENU"
         
         # --- PROCESSAMENTO GRÁFICO (ORDEM DE CAMADAS) ---
-        # 1. [Chame aqui o desenho do seu mapa para ele ficar no fundo]
+        # 1. 🔥 DESENHA O MAPA NO FUNDO
+        map.desenhar_mapa(TELA)
         
-        # 2. 🔥 ATUALIZA E DESENHA O RASTRO/PLASMA (Fica atrás do jogador)
+        # 2. ATUALIZA E DESENHA O RASTRO/PLASMA (Fica na frente do chão, mas atrás do jogador)
         gerenciador_efeitos.atualizar_e_desenhar(TELA)
         
         # 3. Desenha as entidades na camada superior
         jogador.desenhar(TELA)
         inimigos.desenhar(TELA)
         
-        desenhar_texto("ESC para voltar", FONTE_PEQUENA, COR_TEXTO, LARGURA // 2, ALTURA - 20)
+        desenhar_texto("ESC para voltar", FONTE_PEQUENA, COR_TEXTO, LARGURA // 2, ALTURA - 25)
         
     elif estado_jogo == "CREDITOS":
         desenhar_texto("CRÉDITOS", FONTE_TITULO, COR_TEXTO, LARGURA // 2, 150)
