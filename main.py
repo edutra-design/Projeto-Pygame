@@ -16,7 +16,6 @@ RELOGIO = pygame.time.Clock()
 
 map.inicializar_iluminacao(LARGURA, ALTURA)
 
-# --- PALETA DE CORES ROXA & NEON PROFISSIONAL ---
 COR_FUNDO = (10, 10, 18)          
 COR_TEXTO = (240, 240, 255)       
 COR_ROXO_NEON = (180, 50, 255)    
@@ -24,22 +23,20 @@ COR_ROXO_ESCURO = (32, 24, 48)
 COR_ROXO_HOVER = (120, 40, 220)   
 COR_MOLDURA_ARCADE = (45, 30, 70)
 
-# Configuração de Fontes com anti-aliasing e peso consistentes
 FONTE_TITULO = pygame.font.SysFont("Impact", 85) 
 FONTE_MENU = pygame.font.SysFont("Lucida Console", 20, bold=True)
 FONTE_PEQUENA = pygame.font.SysFont("Consolas", 16, bold=True)
 
-# Layout dos Botões (Estilo Painel de Navegação)
 botao_jogar = pygame.Rect(LARGURA // 2 - 150, 270, 300, 50)
 botao_creditos = pygame.Rect(LARGURA // 2 - 150, 350, 300, 50)
 botao_sair = pygame.Rect(LARGURA // 2 - 150, 430, 300, 50)
 
-# Instanciação das entidades (Física clássica original restaurada)
 jogador = Jogador(55.0, 55.0, 40)
 inimigos = Inimigo(505.0, 455.0, 40)
 gerenciador_efeitos = EfeitoRastro() 
 
-lista_paredes_do_seu_mapa = map.carregar_mapa()
+fase_atual = 1
+lista_paredes_do_seu_mapa = map.carregar_mapa(fase_atual)
 
 estado_jogo = "MENU"
 rodando = True
@@ -47,13 +44,11 @@ tempo_animacao = 0
 
 def desenhar_linhas_tecnologicas():
     """Desenha detalhes de fundo e linhas angulares de alta tecnologia no menu."""
-    # Linhas de grade sutis
     for x in range(0, LARGURA, 40):
         pygame.draw.line(TELA, (18, 15, 28), (x, 0), (x, ALTURA), 1)
     for y in range(0, ALTURA, 40):
         pygame.draw.line(TELA, (18, 15, 28), (0, y), (LARGURA, y), 1)
     
-    # Molduras de canto estilizadas (Estilo interface hacker/cyberpunk)
     pygame.draw.rect(TELA, COR_ROXO_NEON, (20, 20, 30, 4), border_radius=2)
     pygame.draw.rect(TELA, COR_ROXO_NEON, (20, 20, 4, 30), border_radius=2)
     pygame.draw.rect(TELA, COR_ROXO_NEON, (LARGURA - 50, 20, 30, 4), border_radius=2)
@@ -70,32 +65,38 @@ def desenhar_botao_profissional(retangulo: pygame.Rect, texto: str, posicao_mous
     cor_fundo = COR_ROXO_ESCURO if not colidindo else (45, 32, 68)
     cor_borda = COR_ROXO_HOVER if not colidindo else COR_ROXO_NEON
     
-    # Corpo do botão
     pygame.draw.rect(TELA, cor_fundo, retangulo, border_radius=6)
     pygame.draw.rect(TELA, cor_borda, retangulo, width=2, border_radius=6)
     
-    # Se o mouse estiver em cima, desenha pequenas setas/colchetes neon nas pontas
     if colidindo:
-        # Colchete esquerdo
         pygame.draw.rect(TELA, COR_ROXO_NEON, (retangulo.x - 15, retangulo.y + 15, 4, 20))
-        # Colchete direito
         pygame.draw.rect(TELA, COR_ROXO_NEON, (retangulo.right + 11, retangulo.y + 15, 4, 20))
         
     desenhar_texto(texto, FONTE_MENU, COR_TEXTO, retangulo.centerx, retangulo.centery)
 
 def desenhar_hud_jogo():
     """Desenha uma moldura e uma barra superior para deixar a gameplay com cara de produto final."""
-    # Painel do topo
     pygame.draw.rect(TELA, (15, 12, 24), (0, 0, LARGURA, 40))
     pygame.draw.line(TELA, COR_ROXO_NEON, (0, 40), (LARGURA, 40), 2)
     
-    # Textos informativos estilizados na barra
     desenhar_texto("MÉTODO: GEOMÉTRICO", FONTE_PEQUENA, COR_ROXO_HOVER, 120, 20)
     desenhar_texto("STATUS: ATIVO", FONTE_PEQUENA, (0, 255, 150), LARGURA - 100, 20)
 
-# --- GAME LOOP ---
+def iniciar_fase(numero_da_fase):
+    global lista_paredes_do_seu_mapa, fase_atual
+    fase_atual = numero_da_fase
+
+    lista_paredes_do_seu_mapa = map.carregar_mapa(fase_atual)
+
+    jogador.x, jogador.y = 555.0, 55.0
+    jogador.direcao_x, jogador.direcao_y = 0, 0
+    jogador.buffer_x, jogador_y = 0, 0
+
+    inimigos.x, inimigos.y = 500.0, 450.0
+
+    gerenciador_efeitos.rastros..clear()
+    gerenciador_efeitos.particulas.clear()
 while rodando:
-    # Mantém o FPS cravado a 60 estável (Física clássica estável)
     RELOGIO.tick(60) 
     tempo_animacao += 0.05 
     posicao_mouse = pygame.mouse.get_pos()
@@ -129,37 +130,40 @@ while rodando:
     if estado_jogo == "MENU":
         desenhar_linhas_tecnologicas()
         
-        # Pulsação sutil e elegante do título principal
         oscilacao = int((math.sin(tempo_animacao * 1.5) + 1) * 20)
         cor_titulo = (140 + oscilacao, 50, 255)
         
-        # Sombra estilizada de deslocamento
         desenhar_texto("CORE_SYNC", FONTE_TITULO, (40, 20, 80), LARGURA // 2 + 5, 135)
         desenhar_texto("CORE_SYNC", FONTE_TITULO, cor_titulo, LARGURA // 2, 130)
         
-        # Linhas decorativas abaixo do título
         pygame.draw.line(TELA, COR_ROXO_NEON, (LARGURA//2 - 180, 195), (LARGURA//2 + 180, 195), 2)
         desenhar_texto("::: M A S K   E D I T I O N :::", FONTE_PEQUENA, COR_TEXTO, LARGURA // 2, 215)
         
-        # Renderização dos botões profissionais
         desenhar_botao_profissional(botao_jogar, "[ ACESSAR CORE ]", posicao_mouse)
         desenhar_botao_profissional(botao_creditos, "[ CONFIG / CRÉDITOS ]", posicao_mouse)
         desenhar_botao_profissional(botao_sair, "[ DESCONECTAR ]", posicao_mouse)
         
     elif estado_jogo == "JOGANDO":
-        # --- PROCESSAMENTO LÓGICO HISTÓRICO ---
-        # Removido completamente o Delta Time para manter sua física e velocidade originais intactas
+       
         jogador.mover(LARGURA, ALTURA, lista_paredes_do_seu_mapa, gerenciador_efeitos)
         inimigos.atualizar_ia(LARGURA, ALTURA, lista_paredes_do_seu_mapa, jogador)
         
         if inimigos.checar_colisao(jogador):
             estado_jogo = "MENU"
         
-        # --- PROCESSAMENTO GRÁFICO ---
+        rect_jogador = jogador.obter_rect()
+        rect_portal = pygame.Rect(400, 400, 50, 50)
+
+        if rect_jogador.colliderect(rect_portal):
+            if fase_atual < 2:
+                iniciar_fase(fase_atual + 1)
+            else:
+                estado_jogo = "CREDITOS"
+        
+        
         map.desenhar_mapa(TELA)
         
-        # Atualização clássica do rastro (Sem os fragmentos estourando)
-        # Se o seu efeitos.py pede o parâmetro dt na assinatura, mude a chamada abaixo para usar apenas 'atualizar_e_desenhar(TELA)' tirando o parâmetro interno
+        
         try:
             gerenciador_efeitos.atualizar_e_desenhar(TELA)
         except TypeError:
@@ -169,7 +173,6 @@ while rodando:
         inimigos.desenhar(TELA)
         map.aplicar_iluminacao_pro(TELA, jogador.obter_rect().center)
         
-        # Interface de jogo integrada (HUD)
         desenhar_hud_jogo()
         desenhar_texto("Pressione ESC para ejetar", FONTE_PEQUENA, COR_TEXTO, LARGURA // 2, ALTURA - 25)
         
@@ -189,7 +192,6 @@ while rodando:
         desenhar_texto("Emilly Vitória", FONTE_MENU, COR_TEXTO, LARGURA // 2, 330)
         desenhar_texto("Júlia Dutra", FONTE_MENU, COR_TEXTO, LARGURA // 2, 370)
         
-        # Texto auxiliar piscante usando cosseno
         alfa = int((math.cos(tempo_animacao * 2) + 1) * 75) + 105
         desenhar_texto("Pressione ESC para retornar ao painel", FONTE_PEQUENA, (alfa, alfa, 255), LARGURA // 2, 440)
         
