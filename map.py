@@ -33,11 +33,27 @@ Fases = {
          [1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,1],
          [1,1,1,0,0,0,1,1,1,1,0,0,0,1,1,1],
          [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-] }
+],
+3: [
+       :
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+        [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,1],
+        [1,0,1,0,0,0,1,0,0,0,1,0,0,0,1,1],
+        [1,0,1,1,1,1,1,1,1,1,1,1,1,0,1,1],
+        [1,0,0,0,0,0,4,0,0,0,0,0,0,0,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1],
+        [1,5,5,5,5,5,5,5,5,5,5,1,0,1,1,1], 
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,6,1,1,1,1,1,1,1,1,1,1,1,1,0,1], 
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    ]
+}
 
 MAPA_ATUAL = Fases[1]
 
-def carregar_fase(numero_fase):
+def carregar_fase(numero_fase=1):
     global MAPA_ATUAL
 
     if numero_fase in Fases:
@@ -51,6 +67,10 @@ def carregar_fase(numero_fase):
     for linha_idx, linha in enumerate(MAPA_ATUAL):
         for col_idx, tipo in enumerate(linha):
             if tipo ==1:
+                x = col_idx * TAMANHO_BLOCO
+                y = linha_idx * TAMANHO_BLOCO
+                paredes.append(pygame.Rect(x, y, TAMANHO_BLOCO, TAMANHO_BLOCO))
+    return paredes            
 CORES = {
     "FUNDO": (10, 10, 18),          # Fundo escuro do labirinto
     "NEON_PRINCIPAL": (180, 50, 255),# Linhas roxas neon vazadas
@@ -68,7 +88,7 @@ def inicializar_iluminacao(largura, altura):
 
 def carregar_mapa():
     paredes = []
-    for linha_idx, linha in enumerate(MAPA):
+    for linha_idx, linha in enumerate(MAPA_ATUAL):
         for col_idx, tipo in enumerate(linha):
             if tipo == 1:
                 x = col_idx * TAMANHO_BLOCO
@@ -77,13 +97,13 @@ def carregar_mapa():
     return paredes
 
 def eh_parede(linha, col):
-    if 0 <= linha < len(MAPA) and 0 <= col < len(MAPA[0]):
-        return MAPA[linha][col] == 1
+    if 0 <= linha < len(MAPA_ATUAL) and 0 <= col < len(MAPA_ATUAL[0]):
+        return MAPA_ATUAL[linha][col] == 1
     return True
 
 def desenhar_mapa(tela: pygame.Surface):
     """Desenha o labirinto usando apenas traços e linhas de estilo neon vazadas."""
-    for linha_idx, linha in enumerate(MAPA):
+    for linha_idx, linha in enumerate(MAPA_ATUAL):
         for col_idx, tipo in enumerate(linha):
             x = col_idx * TAMANHO_BLOCO
             y = linha_idx * TAMANHO_BLOCO
