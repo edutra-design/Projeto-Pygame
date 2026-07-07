@@ -1,11 +1,11 @@
-#main.py
+# main.py
 import pygame
 import sys
 import math 
 from personagem import Jogador
 from inimigos import Inimigo
 from efeitos import EfeitoRastro
-import map
+import map  # Usaremos o seu map.py diretamente
 
 pygame.init()
 
@@ -31,16 +31,32 @@ botao_jogar = pygame.Rect(LARGURA // 2 - 150, 270, 300, 50)
 botao_creditos = pygame.Rect(LARGURA // 2 - 150, 350, 300, 50)
 botao_sair = pygame.Rect(LARGURA // 2 - 150, 430, 300, 50)
 
+# Inicialização dos objetos do jogo
 jogador = Jogador(55.0, 55.0, 40)
 inimigos = Inimigo(505.0, 455.0, 40)
 gerenciador_efeitos = EfeitoRastro() 
 
 fase_atual = 1
-lista_paredes_do_seu_mapa = map.carregar_mapa(fase_atual)
+# Correção: Buscando a função diretamente do seu módulo 'map'
+lista_paredes_do_seu_mapa = map.carregar_fase(fase_atual)
+rect_portal = pygame.Rect(0, 0, 0, 0)
 
 estado_jogo = "MENU"
 rodando = True
 tempo_animacao = 0 
+
+def atualizar_posicao_portal():
+    """Encontra o bloco do portal (tipo 6) na matriz atual e gera seu Rect de colisão."""
+    global rect_portal
+    for linha_idx, linha in enumerate(map.MAPA_ATUAL):
+        for col_idx, tipo in enumerate(linha):
+            if tipo == 6:
+                x = col_idx * map.TAMANHO_BLOCO
+                y = linha_idx * map.TAMANHO_BLOCO
+                rect_portal = pygame.Rect(x, y, map.TAMANHO_BLOCO, map.TAMANHO_BLOCO)
+                return
+    # Caso não encontre portal na fase, joga para fora da tela
+    rect_portal = pygame.Rect(-100, -100, 0, 0)
 
 def desenhar_linhas_tecnologicas():
     """Desenha detalhes de fundo e linhas angulares de alta tecnologia no menu."""
@@ -75,27 +91,50 @@ def desenhar_botao_profissional(retangulo: pygame.Rect, texto: str, posicao_mous
     desenhar_texto(texto, FONTE_MENU, COR_TEXTO, retangulo.centerx, retangulo.centery)
 
 def desenhar_hud_jogo():
-    """Desenha uma moldura e uma barra superior para deixar a gameplay com cara de produto final."""
+    """Desenha uma moldura e uma barra superior com informações do estado do jogo."""
     pygame.draw.rect(TELA, (15, 12, 24), (0, 0, LARGURA, 40))
     pygame.draw.line(TELA, COR_ROXO_NEON, (0, 40), (LARGURA, 40), 2)
     
-    desenhar_texto("MÉTODO: GEOMÉTRICO", FONTE_PEQUENA, COR_ROXO_HOVER, 120, 20)
+    desenhar_texto(f"FASE: {fase_atual} / 3", FONTE_PEQUENA, COR_TEXTO, 60, 20)
+    desenhar_texto("MÉTODO: GEOMÉTRICO", FONTE_PEQUENA, COR_ROXO_HOVER, LARGURA // 2, 20)
     desenhar_texto("STATUS: ATIVO", FONTE_PEQUENA, (0, 255, 150), LARGURA - 100, 20)
 
 def iniciar_fase(numero_da_fase):
     global lista_paredes_do_seu_mapa, fase_atual
+    
+    retorno_fase = map.carregar_fase(numero_da_fase)
+    
+    if retorno_fase is None:
+        # Se carregar_fase retornar None, significa que as fases acabaram
+        estado_jogo = "CREDITOS"
+        return
+
     fase_atual = numero_da_fase
+    lista_paredes_do_seu_mapa = retorno_fase
+    atualizar_posicao_portal()
 
-    lista_paredes_do_seu_mapa = map.carregar_mapa(fase_atual)
-
-    jogador.x, jogador.y = 555.0, 55.0
+    # Resetando as mecânicas do jogador para a nova fase
+    jogador.x, jogador.y = 55.0, 55.0
     jogador.direcao_x, jogador.direcao_y = 0, 0
-    jogador.buffer_x, jogador_y = 0, 0
+    if hasattr(jogador, 'buffer_x'):
+        jogador.buffer_x, jogador.buffer_y = 0, 0
 
-    inimigos.x, inimigos.y = 500.0, 450.0
+    # Configuração de posição inicial do inimigo na fase
+    if fase_atual == 1:
+        inimigos.x, inimigos.y = 505.0, 455.0
+    elif fase_atual == 2:
+        inimigos.x, inimigos.y = 350.0, 350.0
+    elif fase_atual == 3:
+        inimigos.x, inimigos.y = 700.0, 500.0
 
-    gerenciador_efeitos.rastros..clear()
-    gerenciador_efeitos.particulas.clear()
+    inimigos.estado = "PATRULHA"
+    gerenciador_efeitos.rastros.clear()
+    if hasattr(gerenciador_efeitos, 'particulas'):
+        gerenciador_efeitos.particulas.clear()
+
+# Inicializa a primeira localização do portal antes do loop começar
+atualizar_posicao_portal()
+
 while rodando:
     RELOGIO.tick(60) 
     tempo_animacao += 0.05 
@@ -108,12 +147,7 @@ while rodando:
         elif evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
             if estado_jogo == "MENU":
                 if botao_jogar.collidepoint(posicao_mouse):
-                    jogador.x, jogador.y = 55.0, 55.0
-                    jogador.direcao_x, jogador.direcao_y = 0, 0
-                    jogador.buffer_x, jogador.buffer_y = 0, 0
-                    inimigos.x, inimigos.y = 505.0, 455.0
-                    inimigos.estado = "PATRULHA"
-                    gerenciador_efeitos.rastros.clear() 
+                    iniciar_fase(1)  # Começa sempre da fase 1 ao clicar em Jogar
                     estado_jogo = "JOGANDO"
                 elif botao_creditos.collidepoint(posicao_mouse):
                     estado_jogo = "CREDITOS"
@@ -144,25 +178,24 @@ while rodando:
         desenhar_botao_profissional(botao_sair, "[ DESCONECTAR ]", posicao_mouse)
         
     elif estado_jogo == "JOGANDO":
-       
+        # Movimentação e IA passando a lista de colisões correta da fase atual
         jogador.mover(LARGURA, ALTURA, lista_paredes_do_seu_mapa, gerenciador_efeitos)
         inimigos.atualizar_ia(LARGURA, ALTURA, lista_paredes_do_seu_mapa, jogador)
         
+        # Game over básico (retorna ao Menu)
         if inimigos.checar_colisao(jogador):
             estado_jogo = "MENU"
         
+        # Verificação de mudança de fase ao tocar no Portal
         rect_jogador = jogador.obter_rect()
-        rect_portal = pygame.Rect(400, 400, 50, 50)
-
         if rect_jogador.colliderect(rect_portal):
-            if fase_atual < 2:
+            if fase_atual < 3:
                 iniciar_fase(fase_atual + 1)
             else:
-                estado_jogo = "CREDITOS"
+                estado_jogo = "CREDITOS" # Fim do jogo (passou da fase 3)
         
-        
+        # Renderização visual respeitando a ordem de camadas
         map.desenhar_mapa(TELA)
-        
         
         try:
             gerenciador_efeitos.atualizar_e_desenhar(TELA)
@@ -171,6 +204,8 @@ while rodando:
 
         jogador.desenhar(TELA)
         inimigos.desenhar(TELA)
+        
+        # Efeito visual de iluminação dinâmica focado no jogador
         map.aplicar_iluminacao_pro(TELA, jogador.obter_rect().center)
         
         desenhar_hud_jogo()
