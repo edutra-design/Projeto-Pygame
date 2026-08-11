@@ -21,6 +21,8 @@ class Entidade:
 
 
 class Jogador(Entidade):
+    #A classe "jogador" é abstrata da classe "entidade"
+
     def __init__(self, x: float, y: float, tamanho: int):
         super().__init__(x, y, tamanho, (0, 255, 255)) # Ciano Neon
         self.velocidade = 12.0
