@@ -21,7 +21,7 @@ class Entidade:
 
 
 class Jogador(Entidade):
-    #A classe "jogador" é abstrata da classe "entidade"
+    #A classe "jogador" é abstrata da classe "entidade" que serve como moldelo para os elementos
 
     def __init__(self, x: float, y: float, tamanho: int):
         super().__init__(x, y, tamanho, (0, 255, 255)) # Ciano Neon
