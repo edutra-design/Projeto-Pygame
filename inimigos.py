@@ -1,7 +1,7 @@
 import pygame
 import random
 from personagem import Entidade
-#A classe "inimigos" é abstrata da classe "entidade"
+#A classe "inimigos" é abstrata da classe "entidade" que serve como modelo para os elementos do jogo
 class Inimigo(Entidade):
     def __init__(self, x: float, y: float, tamanho: int):
         super().__init__(x, y, tamanho, (255, 50, 50)) # Vermelho Neon
