@@ -1,4 +1,6 @@
 import pygame
+
+import pygame
 import sys
 import math
 from personagem import Jogador
@@ -74,7 +76,6 @@ tempo_animacao = 0
 # ==================================================
 
 def atualizar_posicao_portal():
-    """Encontra o bloco do portal e cria seu Rect."""
 
     global rect_portal
 
@@ -104,7 +105,6 @@ def atualizar_posicao_portal():
 # ==================================================
 
 def desenhar_linhas_tecnologicas():
-    """Desenha detalhes tecnológicos do fundo."""
 
     for x in range(0, LARGURA, 40):
 
@@ -325,9 +325,7 @@ def iniciar_fase(numero_da_fase):
 
     atualizar_posicao_portal()
 
-    # -----------------------------
     # RESET DO JOGADOR
-    # -----------------------------
 
     jogador.x = 55.0
     jogador.y = 55.0
@@ -340,9 +338,7 @@ def iniciar_fase(numero_da_fase):
         jogador.buffer_x = 0
         jogador.buffer_y = 0
 
-    # -----------------------------
     # POSIÇÃO DO INIMIGO
-    # -----------------------------
 
     if fase_atual == 1:
 
@@ -361,9 +357,7 @@ def iniciar_fase(numero_da_fase):
 
     inimigos.estado = "PATRULHA"
 
-    # -----------------------------
     # LIMPA EFEITOS
-    # -----------------------------
 
     gerenciador_efeitos.rastros.clear()
 
@@ -400,26 +394,16 @@ while rodando:
 
     for evento in pygame.event.get():
 
-        # -----------------------------
-        # FECHAR JOGO
-        # -----------------------------
-
         if evento.type == pygame.QUIT:
 
             rodando = False
-
-        # -----------------------------
-        # CLIQUE DO MOUSE
-        # -----------------------------
 
         elif (
             evento.type == pygame.MOUSEBUTTONDOWN
             and evento.button == 1
         ):
 
-            # ==========================
             # MENU
-            # ==========================
 
             if estado_jogo == "MENU":
 
@@ -443,9 +427,7 @@ while rodando:
 
                     rodando = False
 
-            # ==========================
             # GAME OVER
-            # ==========================
 
             elif estado_jogo == "GAME_OVER":
 
@@ -464,10 +446,6 @@ while rodando:
                 ):
 
                     estado_jogo = "MENU"
-
-        # -----------------------------
-        # TECLADO
-        # -----------------------------
 
         elif evento.type == pygame.KEYDOWN:
 
@@ -571,9 +549,7 @@ while rodando:
 
     elif estado_jogo == "JOGANDO":
 
-        # -----------------------------
         # MOVIMENTO DO JOGADOR
-        # -----------------------------
 
         jogador.mover(
             LARGURA,
@@ -582,9 +558,7 @@ while rodando:
             gerenciador_efeitos
         )
 
-        # -----------------------------
         # IA DO INIMIGO
-        # -----------------------------
 
         inimigos.atualizar_ia(
             LARGURA,
@@ -593,9 +567,7 @@ while rodando:
             jogador
         )
 
-        # -----------------------------
         # GAME OVER
-        # -----------------------------
 
         if inimigos.checar_colisao(
             jogador
@@ -603,9 +575,7 @@ while rodando:
 
             estado_jogo = "GAME_OVER"
 
-        # -----------------------------
         # PORTAL
-        # -----------------------------
 
         rect_jogador = jogador.obter_rect()
 
@@ -623,15 +593,15 @@ while rodando:
 
                 estado_jogo = "CREDITOS"
 
-        # -----------------------------
+        # ==================================================
         # MAPA
-        # -----------------------------
+        # ==================================================
 
         map.desenhar_mapa(TELA)
 
-        # -----------------------------
+        # ==================================================
         # EFEITOS
-        # -----------------------------
+        # ==================================================
 
         try:
 
@@ -646,30 +616,32 @@ while rodando:
                 1 / 60
             )
 
-        # -----------------------------
-        # JOGADOR
-        # -----------------------------
-
-        jogador.desenhar(TELA)
-
-        # -----------------------------
+        # ==================================================
         # INIMIGO
-        # -----------------------------
+        # ==================================================
 
         inimigos.desenhar(TELA)
 
-        # -----------------------------
+        # ==================================================
         # ILUMINAÇÃO
-        # -----------------------------
+        # ==================================================
 
         map.aplicar_iluminacao_pro(
             TELA,
             jogador.obter_rect().center
         )
 
-        # -----------------------------
+        # ==================================================
+        # JOGADOR
+        # DESENHADO DEPOIS DA ILUMINAÇÃO
+        # PARA FICAR CLARO
+        # ==================================================
+
+        jogador.desenhar(TELA)
+
+        # ==================================================
         # HUD
-        # -----------------------------
+        # ==================================================
 
         desenhar_hud_jogo()
 
@@ -789,10 +761,6 @@ while rodando:
 
         desenhar_linhas_tecnologicas()
 
-        # -----------------------------
-        # MOLDURA
-        # -----------------------------
-
         moldura_game_over = pygame.Rect(
             LARGURA // 2 - 300,
             80,
@@ -815,10 +783,6 @@ while rodando:
             border_radius=10
         )
 
-        # -----------------------------
-        # TÍTULO
-        # -----------------------------
-
         desenhar_texto(
             "GAME OVER",
             FONTE_TITULO,
@@ -835,10 +799,6 @@ while rodando:
             145
         )
 
-        # -----------------------------
-        # LINHA
-        # -----------------------------
-
         pygame.draw.line(
             TELA,
             (255, 40, 80),
@@ -852,10 +812,6 @@ while rodando:
             ),
             2
         )
-
-        # -----------------------------
-        # MENSAGEM
-        # -----------------------------
 
         desenhar_texto(
             "::: CONEXÃO PERDIDA :::",
@@ -881,29 +837,17 @@ while rodando:
             305
         )
 
-        # -----------------------------
-        # BOTÃO TENTAR NOVAMENTE
-        # -----------------------------
-
         desenhar_botao_profissional(
             botao_tentar_novamente,
             "[ TENTAR NOVAMENTE ]",
             posicao_mouse
         )
 
-        # -----------------------------
-        # BOTÃO MENU
-        # -----------------------------
-
         desenhar_botao_profissional(
             botao_voltar_menu,
             "[ VOLTAR AO MENU ]",
             posicao_mouse
         )
-
-        # -----------------------------
-        # ESC
-        # -----------------------------
 
         desenhar_texto(
             "ESC — VOLTAR AO MENU",
