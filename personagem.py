@@ -1,4 +1,3 @@
-#personagem.py
 import pygame
 
 class Entidade:
@@ -21,8 +20,6 @@ class Entidade:
 
 
 class Jogador(Entidade):
-    #A classe "jogador" é abstrata da classe "entidade" que serve como moldelo para os elementos
-
     def __init__(self, x: float, y: float, tamanho: int):
         super().__init__(x, y, tamanho, (0, 255, 255)) # Ciano Neon
         self.velocidade = 12.0
@@ -33,7 +30,7 @@ class Jogador(Entidade):
         self.tamanho_bloco = 50 # Tamanho da grade do mapa para alinhar
 
         try:
-            sprite_original = pygame.image.load("assets/Mad_Mask.webp").convert_alpha()
+            sprite_original = pygame.image.load("assets/unnamed (1).png").convert_alpha()
             self.sprite = pygame.transform.scale(sprite_original, (tamanho, tamanho))
         except FileNotFoundError:
             pass
