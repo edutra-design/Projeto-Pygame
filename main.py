@@ -1,6 +1,4 @@
 import pygame
-
-import pygame
 import sys
 import math
 from personagem import Jogador
@@ -23,6 +21,10 @@ COR_ROXO_NEON = (180, 50, 255)
 COR_ROXO_ESCURO = (32, 24, 48)
 COR_ROXO_HOVER = (120, 40, 220)
 COR_MOLDURA_ARCADE = (45, 30, 70)
+
+# Cores para o Game Over (Vermelho)
+COR_VERMELHO_NEON = (255, 40, 60)
+COR_VERMELHO_ESCURO = (35, 10, 15)
 
 FONTE_TITULO = pygame.font.SysFont("Impact", 85)
 FONTE_MENU = pygame.font.SysFont("Lucida Console", 20, bold=True)
@@ -770,14 +772,14 @@ while rodando:
 
         pygame.draw.rect(
             TELA,
-            (25, 12, 30),
+            COR_VERMELHO_ESCURO,
             moldura_game_over,
             border_radius=10
         )
 
         pygame.draw.rect(
             TELA,
-            (255, 40, 80),
+            COR_VERMELHO_NEON,
             moldura_game_over,
             width=2,
             border_radius=10
@@ -786,7 +788,7 @@ while rodando:
         desenhar_texto(
             "GAME OVER",
             FONTE_TITULO,
-            (70, 10, 30),
+            (80, 10, 20),
             LARGURA // 2 + 5,
             150
         )
@@ -794,14 +796,14 @@ while rodando:
         desenhar_texto(
             "GAME OVER",
             FONTE_TITULO,
-            (255, 30, 70),
+            (255, 30, 50),
             LARGURA // 2,
             145
         )
 
         pygame.draw.line(
             TELA,
-            (255, 40, 80),
+            COR_VERMELHO_NEON,
             (
                 LARGURA // 2 - 180,
                 215
@@ -824,7 +826,7 @@ while rodando:
         desenhar_texto(
             "O NÚCLEO FOI COMPROMETIDO",
             FONTE_PEQUENA,
-            (255, 100, 120),
+            (255, 120, 120),
             LARGURA // 2,
             275
         )
@@ -832,7 +834,7 @@ while rodando:
         desenhar_texto(
             f"FASE {fase_atual}",
             FONTE_MENU,
-            COR_ROXO_NEON,
+            COR_VERMELHO_NEON,
             LARGURA // 2,
             305
         )
