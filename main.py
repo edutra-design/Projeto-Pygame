@@ -4,6 +4,7 @@ import math
 from personagem import Jogador
 from inimigos import Inimigo
 from efeitos import EfeitoRastro
+from plasma import Plasma
 import map
 
 pygame.init()
@@ -22,7 +23,6 @@ COR_ROXO_ESCURO = (32, 24, 48)
 COR_ROXO_HOVER = (120, 40, 220)
 COR_MOLDURA_ARCADE = (45, 30, 70)
 
-# Cores para o Game Over (Vermelho)
 COR_VERMELHO_NEON = (255, 40, 60)
 COR_VERMELHO_ESCURO = (35, 10, 15)
 
@@ -30,17 +30,11 @@ FONTE_TITULO = pygame.font.SysFont("Impact", 85)
 FONTE_MENU = pygame.font.SysFont("Lucida Console", 20, bold=True)
 FONTE_PEQUENA = pygame.font.SysFont("Consolas", 16, bold=True)
 
-# --------------------------------------------------
-# BOTÕES DO MENU
-# --------------------------------------------------
 
 botao_jogar = pygame.Rect(LARGURA // 2 - 150, 270, 300, 50)
 botao_creditos = pygame.Rect(LARGURA // 2 - 150, 350, 300, 50)
 botao_sair = pygame.Rect(LARGURA // 2 - 150, 430, 300, 50)
 
-# --------------------------------------------------
-# BOTÕES DO GAME OVER
-# --------------------------------------------------
 
 botao_tentar_novamente = pygame.Rect(
     LARGURA // 2 - 150, 330, 300, 50
@@ -50,13 +44,13 @@ botao_voltar_menu = pygame.Rect(
     LARGURA // 2 - 150, 410, 300, 50
 )
 
-# --------------------------------------------------
-# OBJETOS DO JOGO
-# --------------------------------------------------
 
 jogador = Jogador(55.0, 55.0, 40)
 inimigos = Inimigo(505.0, 455.0, 40)
 gerenciador_efeitos = EfeitoRastro()
+gerenciador_plasma = Plasma()
+
+FASE_MINIMA_DO_PLASMA = 3
 
 fase_atual = 1
 
@@ -64,18 +58,11 @@ lista_paredes_do_seu_mapa = map.carregar_fase(fase_atual)
 
 rect_portal = pygame.Rect(0, 0, 0, 0)
 
-# --------------------------------------------------
-# ESTADOS DO JOGO
-# --------------------------------------------------
 
 estado_jogo = "MENU"
 rodando = True
 tempo_animacao = 0
 
-
-# ==================================================
-# PORTAL
-# ==================================================
 
 def atualizar_posicao_portal():
 
@@ -101,10 +88,6 @@ def atualizar_posicao_portal():
 
     rect_portal = pygame.Rect(-100, -100, 0, 0)
 
-
-# ==================================================
-# FUNDO DO MENU
-# ==================================================
 
 def desenhar_linhas_tecnologicas():
 
@@ -157,10 +140,6 @@ def desenhar_linhas_tecnologicas():
     )
 
 
-# ==================================================
-# TEXTO
-# ==================================================
-
 def desenhar_texto(
     texto: str,
     fonte: pygame.font.Font,
@@ -182,10 +161,6 @@ def desenhar_texto(
         )
     )
 
-
-# ==================================================
-# BOTÕES
-# ==================================================
 
 def desenhar_botao_profissional(
     retangulo: pygame.Rect,
@@ -257,10 +232,6 @@ def desenhar_botao_profissional(
     )
 
 
-# ==================================================
-# HUD
-# ==================================================
-
 def desenhar_hud_jogo():
 
     pygame.draw.rect(
@@ -302,10 +273,6 @@ def desenhar_hud_jogo():
     )
 
 
-# ==================================================
-# INICIAR FASE
-# ==================================================
-
 def iniciar_fase(numero_da_fase):
 
     global lista_paredes_do_seu_mapa
@@ -327,7 +294,6 @@ def iniciar_fase(numero_da_fase):
 
     atualizar_posicao_portal()
 
-    # RESET DO JOGADOR
 
     jogador.x = 55.0
     jogador.y = 55.0
@@ -340,7 +306,6 @@ def iniciar_fase(numero_da_fase):
         jogador.buffer_x = 0
         jogador.buffer_y = 0
 
-    # POSIÇÃO DO INIMIGO
 
     if fase_atual == 1:
 
@@ -359,7 +324,16 @@ def iniciar_fase(numero_da_fase):
 
     inimigos.estado = "PATRULHA"
 
-    # LIMPA EFEITOS
+
+    if fase_atual >= FASE_MINIMA_DO_PLASMA:
+
+        gerenciador_plasma.definir_velocidade(max(0.60, 0.18 - (fase_atual - FASE_MINIMA_DO_PLASMA) * 0.03))
+
+        gerenciador_plasma.iniciar(map.MAPA_ATUAL, (jogador.x, jogador.y))
+
+    else: 
+        gerenciador_plasma.desativar()
+
 
     gerenciador_efeitos.rastros.clear()
 
@@ -371,16 +345,9 @@ def iniciar_fase(numero_da_fase):
         gerenciador_efeitos.particulas.clear()
 
 
-# ==================================================
-# INICIALIZA PORTAL
-# ==================================================
 
 atualizar_posicao_portal()
 
-
-# ==================================================
-# LOOP PRINCIPAL
-# ==================================================
 
 while rodando:
 
@@ -389,10 +356,7 @@ while rodando:
     tempo_animacao += 0.05
 
     posicao_mouse = pygame.mouse.get_pos()
-
-    # ==================================================
-    # EVENTOS
-    # ==================================================
+    
 
     for evento in pygame.event.get():
 
@@ -405,7 +369,6 @@ while rodando:
             and evento.button == 1
         ):
 
-            # MENU
 
             if estado_jogo == "MENU":
 
@@ -429,7 +392,6 @@ while rodando:
 
                     rodando = False
 
-            # GAME OVER
 
             elif estado_jogo == "GAME_OVER":
 
@@ -461,15 +423,9 @@ while rodando:
 
                     estado_jogo = "MENU"
 
-    # ==================================================
-    # LIMPA TELA
-    # ==================================================
 
     TELA.fill(COR_FUNDO)
 
-    # ==================================================
-    # MENU
-    # ==================================================
 
     if estado_jogo == "MENU":
 
@@ -545,13 +501,9 @@ while rodando:
             posicao_mouse
         )
 
-    # ==================================================
-    # JOGANDO
-    # ==================================================
+   
 
     elif estado_jogo == "JOGANDO":
-
-        # MOVIMENTO DO JOGADOR
 
         jogador.mover(
             LARGURA,
@@ -560,7 +512,6 @@ while rodando:
             gerenciador_efeitos
         )
 
-        # IA DO INIMIGO
 
         inimigos.atualizar_ia(
             LARGURA,
@@ -569,7 +520,6 @@ while rodando:
             jogador
         )
 
-        # GAME OVER
 
         if inimigos.checar_colisao(
             jogador
@@ -577,7 +527,7 @@ while rodando:
 
             estado_jogo = "GAME_OVER"
 
-        # PORTAL
+       
 
         rect_jogador = jogador.obter_rect()
 
@@ -595,15 +545,9 @@ while rodando:
 
                 estado_jogo = "CREDITOS"
 
-        # ==================================================
-        # MAPA
-        # ==================================================
-
+        
         map.desenhar_mapa(TELA)
 
-        # ==================================================
-        # EFEITOS
-        # ==================================================
 
         try:
 
@@ -618,33 +562,18 @@ while rodando:
                 1 / 60
             )
 
-        # ==================================================
-        # INIMIGO
-        # ==================================================
 
         inimigos.desenhar(TELA)
 
-        # ==================================================
-        # ILUMINAÇÃO
-        # ==================================================
 
         map.aplicar_iluminacao_pro(
             TELA,
             jogador.obter_rect().center
         )
 
-        # ==================================================
-        # JOGADOR
-        # DESENHADO DEPOIS DA ILUMINAÇÃO
-        # PARA FICAR CLARO
-        # ==================================================
-
         jogador.desenhar(TELA)
 
-        # ==================================================
-        # HUD
-        # ==================================================
-
+        
         desenhar_hud_jogo()
 
         desenhar_texto(
@@ -655,9 +584,7 @@ while rodando:
             ALTURA - 25
         )
 
-    # ==================================================
-    # CREDITOS
-    # ==================================================
+ 
 
     elif estado_jogo == "CREDITOS":
 
@@ -745,7 +672,7 @@ while rodando:
                     tempo_animacao * 2
                 ) + 1
             ) * 75
-        ) + 105
+        ) +
 
         desenhar_texto(
             "Pressione ESC para retornar ao painel",
@@ -755,9 +682,7 @@ while rodando:
             440
         )
 
-    # ==================================================
-    # GAME OVER
-    # ==================================================
+   
 
     elif estado_jogo == "GAME_OVER":
 
@@ -859,16 +784,12 @@ while rodando:
             500
         )
 
-    # ==================================================
-    # ATUALIZA TELA
-    # ==================================================
+ 
 
     pygame.display.flip()
 
 
-# ==================================================
-# FINALIZAÇÃO
-# ==================================================
+
 
 pygame.quit()
 sys.exit()
