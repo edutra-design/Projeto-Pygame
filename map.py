@@ -74,7 +74,9 @@ CORES = {
     "NEON_TRILHA": (40, 30, 65),     
     "MOEDA": (255, 230, 0),         
     "AGUA": (0, 180, 255),          
-    "PORTAL": (0, 255, 150)         
+    "PORTAL": (0, 255, 150),
+    "PAREDE_PREENCHIMENTO": (35, 15, 60)
+    "PAREDE_INTERNO": (50, 25, 85)
 }
 
 superficie_escuridao = None
@@ -104,7 +106,13 @@ def desenhar_mapa(tela: pygame.Surface):
                 pygame.draw.line(tela, CORES["NEON_TRILHA"], (centro_x - 4, centro_y), (centro_x + 4, centro_y), 1)
                 pygame.draw.line(tela, CORES["NEON_TRILHA"], (centro_x, centro_y - 4), (centro_x, centro_y + 4), 1)
 
-            if tipo == 1: # --- PAREDES SÓ COM TRACINHOS NEON ---
+            if tipo == 1:
+                #---PREENCHIMENTO DA PAREDE---
+                pygame.draw.rect(tela, CORES["PAREDE_PREENCHIMENTO"], rect)
+                interno = rect.inflate(-16,-16)
+                pygame.draw.rect(tela, CORES["PAREDE_INTERNO"], interno)
+                
+                # --- PAREDES SÓ COM TRACINHOS NEON ---
                 cima   = eh_parede(linha_idx - 1, col_idx)
                 baixo  = eh_parede(linha_idx + 1, col_idx)
                 esquerda = eh_parede(linha_idx, col_idx - 1)
