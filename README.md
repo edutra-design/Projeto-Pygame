@@ -1,4 +1,4 @@
-Alunas: Ana Câdida de Azevedo Santos, Emilly Vitória Dutra Batista e Júlia Dutra Fernandes.
+Alunas: Ana Cândida de Azevedo Santos, Emilly Vitória Dutra Batista e Júlia Dutra Fernandes.
 
 1-
 Título do jogo: Core-sync,( protocolo de sobrecarga.)
