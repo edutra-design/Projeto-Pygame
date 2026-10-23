@@ -149,29 +149,9 @@ Game over
 
 13. Melhorias Futuras
 Possíveis melhorias:
-* Novos power-ups
-* Novos tipos de obstáculos
-* Skins para personagem
-* Sons dinâmicos
-* Efeitos visuais avançados
-* Modo desafio
-Requisitos Funcionais
-* Movimento deslizante automático
-* Colisão com paredes
-* Partículas ao impacto
-* Sistema de pontos e moedas
-* Plasma subindo continuamente
-* Itens temporários
-Requisitos Não Funcionais
-* Movimento em grade lógica
-* Geração procedural com blocos
-* Alto contraste visual
-* Buffer de input para fluidez
-* Performance estável
-Diferenciais Técnicos
-* Ghost effect durante movimento
-* Colisão precisa com pygame.mask
-* Sistema de iluminação local
-* Partículas de impacto
-* Visual neon minimalista
-
+* Modificar o estilo do jogo para ficar mais parecido com  tomb of the mask
+* Colocar as particulas quando o jogador se move ou quando bate na parede
+* Adicionar sons de morte(como uma musica),som de batida nas paredes
+* Modificar o estilo de mapa, pois o mapa não estar no estilo proposto
+* Aumentar a quantidade de fases e suas dificuldades
+* Definir as sprites do jogador, pois ainda não foi definido
