@@ -46,7 +46,7 @@ botao_voltar_menu = pygame.Rect(
 
 
 jogador = Jogador(55.0, 55.0, 40)
-inimigos = Inimigo(505.0, 455.0, 40)
+lista_inimigos = []   # os inimigos de cada fase vêm de map.SPAWNS_INIMIGOS
 gerenciador_efeitos = EfeitoRastro()
 gerenciador_plasma = Plasma()
 
@@ -57,6 +57,42 @@ fase_atual = 1
 lista_paredes_do_seu_mapa = map.carregar_fase(fase_atual)
 
 rect_portal = pygame.Rect(0, 0, 0, 0)
+
+
+# --- MUNDO MAIOR QUE A TELA (os mapas agora são maiores que 800x600) ---
+LARGURA_MUNDO, ALTURA_MUNDO = LARGURA, ALTURA
+MUNDO = pygame.Surface((LARGURA, ALTURA))        # onde tudo é desenhado
+MAPA_PRONTO = pygame.Surface((LARGURA, ALTURA))  # labirinto pré-desenhado (só 1x por fase)
+camera_x, camera_y = 0.0, 0.0
+
+
+def preparar_mundo():
+    """Ajusta o tamanho do mundo ao mapa atual e pré-desenha o labirinto."""
+    global LARGURA_MUNDO, ALTURA_MUNDO, MUNDO, MAPA_PRONTO
+
+    LARGURA_MUNDO = len(map.MAPA_ATUAL[0]) * map.TAMANHO_BLOCO
+    ALTURA_MUNDO = len(map.MAPA_ATUAL) * map.TAMANHO_BLOCO
+
+    MUNDO = pygame.Surface((LARGURA_MUNDO, ALTURA_MUNDO))
+    MAPA_PRONTO = pygame.Surface((LARGURA_MUNDO, ALTURA_MUNDO))
+    map.desenhar_mapa(MAPA_PRONTO)
+
+
+def atualizar_camera(instantanea=False):
+    """Centraliza a câmera no jogador sem sair dos limites do mapa."""
+    global camera_x, camera_y
+
+    alvo_x = jogador.x + jogador.tamanho / 2 - LARGURA / 2
+    alvo_y = jogador.y + jogador.tamanho / 2 - ALTURA / 2
+
+    alvo_x = max(0, min(alvo_x, LARGURA_MUNDO - LARGURA))
+    alvo_y = max(0, min(alvo_y, ALTURA_MUNDO - ALTURA))
+
+    if instantanea:
+        camera_x, camera_y = alvo_x, alvo_y
+    else:
+        camera_x += (alvo_x - camera_x) * 0.15
+        camera_y += (alvo_y - camera_y) * 0.15
 
 
 estado_jogo = "MENU"
@@ -293,6 +329,7 @@ def iniciar_fase(numero_da_fase):
     lista_paredes_do_seu_mapa = retorno_fase
 
     atualizar_posicao_portal()
+    preparar_mundo()
 
 
     jogador.x = 55.0
@@ -307,22 +344,11 @@ def iniciar_fase(numero_da_fase):
         jogador.buffer_y = 0
 
 
-    if fase_atual == 1:
+    lista_inimigos.clear()
 
-        inimigos.x = 505.0
-        inimigos.y = 455.0
+    for ex, ey in map.SPAWNS_INIMIGOS.get(fase_atual, []):
 
-    elif fase_atual == 2:
-
-        inimigos.x = 350.0
-        inimigos.y = 350.0
-
-    elif fase_atual == 3:
-
-        inimigos.x = 700.0
-        inimigos.y = 500.0
-
-    inimigos.estado = "PATRULHA"
+        lista_inimigos.append(Inimigo(float(ex), float(ey), 40))
 
 
     if fase_atual >= FASE_MINIMA_DO_PLASMA:
@@ -334,6 +360,8 @@ def iniciar_fase(numero_da_fase):
     else: 
         gerenciador_plasma.desativar()
 
+
+    atualizar_camera(True)
 
     gerenciador_efeitos.rastros.clear()
 
@@ -347,6 +375,7 @@ def iniciar_fase(numero_da_fase):
 
 
 atualizar_posicao_portal()
+preparar_mundo()
 
 
 while rodando:
@@ -506,26 +535,27 @@ while rodando:
     elif estado_jogo == "JOGANDO":
 
         jogador.mover(
-            LARGURA,
-            ALTURA,
+            LARGURA_MUNDO,
+            ALTURA_MUNDO,
             lista_paredes_do_seu_mapa,
             gerenciador_efeitos
         )
 
 
-        inimigos.atualizar_ia(
-            LARGURA,
-            ALTURA,
-            lista_paredes_do_seu_mapa,
-            jogador
-        )
+        for inimigo in lista_inimigos:
 
+            inimigo.atualizar_ia(
+                LARGURA_MUNDO,
+                ALTURA_MUNDO,
+                lista_paredes_do_seu_mapa,
+                jogador
+            )
 
-        if inimigos.checar_colisao(
-            jogador
-        ):
+            if inimigo.checar_colisao(
+                jogador
+            ):
 
-            estado_jogo = "GAME_OVER"
+                estado_jogo = "GAME_OVER"
 
        
 
@@ -546,32 +576,52 @@ while rodando:
                 estado_jogo = "CREDITOS"
 
         
-        map.desenhar_mapa(TELA)
+        MUNDO.blit(MAPA_PRONTO, (0, 0))
 
 
         try:
 
             gerenciador_efeitos.atualizar_e_desenhar(
-                TELA
+                MUNDO
             )
 
         except TypeError:
 
             gerenciador_efeitos.atualizar_e_desenhar(
-                TELA,
+                MUNDO,
                 1 / 60
             )
 
 
-        inimigos.desenhar(TELA)
+        for inimigo in lista_inimigos:
 
+            inimigo.desenhar(MUNDO)
+
+
+        atualizar_camera()
+
+        cam_x, cam_y = int(camera_x), int(camera_y)
+
+        TELA.blit(
+            MUNDO,
+            (0, 0),
+            (cam_x, cam_y, LARGURA, ALTURA)
+        )
+
+
+        centro_jogador = jogador.obter_rect().center
 
         map.aplicar_iluminacao_pro(
             TELA,
-            jogador.obter_rect().center
+            (centro_jogador[0] - cam_x, centro_jogador[1] - cam_y)
         )
 
+        # desenha o jogador na posição da tela (posição no mundo - câmera)
+        pos_mundo = (jogador.x, jogador.y)
+        jogador.x -= cam_x
+        jogador.y -= cam_y
         jogador.desenhar(TELA)
+        jogador.x, jogador.y = pos_mundo
 
         
         desenhar_hud_jogo()
@@ -672,7 +722,7 @@ while rodando:
                     tempo_animacao * 2
                 ) + 1
             ) * 75
-        ) +
+        ) 
 
         desenhar_texto(
             "Pressione ESC para retornar ao painel",
