@@ -285,7 +285,7 @@ def desenhar_hud_jogo():
     )
 
     desenhar_texto(
-        f"FASE: {fase_atual} / 3",
+        f"FASE: {fase_atual} / {len(map.Fases)}",
         FONTE_PEQUENA,
         COR_TEXTO,
         60,
@@ -348,7 +348,16 @@ def iniciar_fase(numero_da_fase):
 
     for ex, ey in map.SPAWNS_INIMIGOS.get(fase_atual, []):
 
-        lista_inimigos.append(Inimigo(float(ex), float(ey), 40))
+        novo_inimigo = Inimigo(float(ex), float(ey), 40)
+
+        ajuste = map.DIFICULDADE_INIMIGOS.get(fase_atual)
+
+        if ajuste:
+
+            novo_inimigo.velocidade_patrulha = ajuste["patrulha"]
+            novo_inimigo.velocidade_investida = ajuste["investida"]
+
+        lista_inimigos.append(novo_inimigo)
 
 
     if fase_atual >= FASE_MINIMA_DO_PLASMA:
@@ -565,7 +574,7 @@ while rodando:
             rect_portal
         ):
 
-            if fase_atual < 3:
+            if fase_atual < len(map.Fases):
 
                 iniciar_fase(
                     fase_atual + 1
