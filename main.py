@@ -53,6 +53,8 @@ gerenciador_plasma = Plasma()
 FASE_MINIMA_DO_PLASMA = 3
 
 fase_atual = 1
+moedas_coletadas = 0
+estrelas_coletadas = 0
 
 lista_paredes_do_seu_mapa = map.carregar_fase(fase_atual)
 
@@ -389,6 +391,34 @@ preparar_mundo()
 
 while rodando:
 
+    def coletar_itens():
+        global moedas_coletadas, estrelas_coletadas
+
+        rect_jogador = jogador.obter_rect()
+        coletou = False
+
+        for linha in range(len(map.MAPA_ATUAL)):
+            for coluna in range(len(map.MAPA_ATUAL[linha])):
+                tipo = map.MAPA_ATUAL[linha][coluna]
+
+                if tipo == 4 or tipo == 7:
+                    rect_item = pygame.Rect(
+                        coluna * map.TAMANHO_BLOCO,
+                        linha * map.TAMANHO_BLOCO,
+                        map.TAMANHO_BLOCO,
+                        map.TAMANHO_BLOCO
+                    )
+
+                    if rect_jogador.colliderect(rect_item):
+                        if tipo == 4:
+                            moedas_coletadas += 1
+                        elif tipo == 7:
+                            estrelas_coletadas += 1
+                        map.MAPA_ATUAL[linha][coluna] = 0
+                        coletou = True
+        if coletou:
+            map.desenhar_mapa(MAPA_PRONTO)
+
     RELOGIO.tick(60)
 
     tempo_animacao += 0.05
@@ -547,9 +577,9 @@ while rodando:
             LARGURA_MUNDO,
             ALTURA_MUNDO,
             lista_paredes_do_seu_mapa,
-            gerenciador_efeitos
+            gerenciador_efeitos,
         )
-
+        coletar_itens()
 
         for inimigo in lista_inimigos:
 
@@ -633,7 +663,22 @@ while rodando:
         jogador.x, jogador.y = pos_mundo
 
         
-        desenhar_hud_jogo()
+        def desenhar_hud_jogo():
+            desenhar_texto(
+                f"MOEDAS: {moedas_coletadas}",
+                FONTE_PEQUENA,
+                (255,215,40),
+                250,
+                20
+            )
+
+            desenhar_texto(
+                f"ESTRELAS: {estrelas_coletadas}",
+                FONTE_PEQUENA,
+                (255, 255, 120),
+                450,
+                20
+            )
 
         desenhar_texto(
             "Pressione ESC para ejetar",
