@@ -1,4 +1,5 @@
 import pygame
+import os
 
 class Entidade:
     """Classe base para as entidades do jogo."""
@@ -13,11 +14,11 @@ class Entidade:
         return pygame.Rect(int(self.x), int(self.y), self.tamanho, self.tamanho)
 
     def desenhar(self, tela: pygame.Surface):
-        if self.sprite:
+        if self.sprite is not None:
             tela.blit(self.sprite, (int(self.x), int(self.y)))
         else:
             pygame.draw.rect(tela, self.cor, self.obter_rect())
-
+        
 
 class Jogador(Entidade):
     def __init__(self, x: float, y: float, tamanho: int):
@@ -29,11 +30,32 @@ class Jogador(Entidade):
         self.buffer_y = 0
         self.tamanho_bloco = 50 # Tamanho da grade do mapa para alinhar
 
+    
         try:
-            sprite_original = pygame.image.load("assets/unnamed (1).png").convert_alpha()
-            self.sprite = pygame.transform.scale(sprite_original, (tamanho, tamanho))
-        except FileNotFoundError:
-            pass
+            caminho_sprite = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "assets",
+                "personagem",
+                "robo_idle.png"
+            )
+
+            print("Procurando sprite em:", caminho_sprite)
+
+            sprite_original = pygame.image.load(
+                caminho_sprite
+            ).convert_alpha()
+
+            self.sprite = pygame.transform.scale(
+                sprite_original,
+                (tamanho, tamanho)
+            )
+
+            print("Sprite carregado com sucesso!")
+
+        except Exception as erro:
+            print("Erro ao carregar sprite:", erro)
+            self.sprite = None
+
 
     def mover(self, largura_tela: int, altura_tela: int, lista_paredes: list, gerenciador_efeitos):
         """Movimentação fluida com alinhamento inteligente para não travar nas quinas."""
@@ -93,3 +115,6 @@ class Jogador(Entidade):
         if self.y < 0 or self.y > altura_tela - self.tamanho or any(rect_jogador.colliderect(p) for p in lista_paredes):
             self.y = pos_antiga_y
             self.direcao_y = 0
+
+
+
