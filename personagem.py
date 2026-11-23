@@ -13,11 +13,13 @@ class Entidade:
     def obter_rect(self) -> pygame.Rect:
         return pygame.Rect(int(self.x), int(self.y), self.tamanho, self.tamanho)
 
+  
     def desenhar(self, tela: pygame.Surface):
         if self.sprite is not None:
             tela.blit(self.sprite, (int(self.x), int(self.y)))
         else:
             pygame.draw.rect(tela, self.cor, self.obter_rect())
+
         
 
 class Jogador(Entidade):
@@ -26,40 +28,74 @@ class Jogador(Entidade):
         self.velocidade = 12.0
         self.direcao_x = 0
         self.direcao_y = 0
+        self.direcao_visual = "baixo"
         self.buffer_x = 0
         self.buffer_y = 0
         self.tamanho_bloco = 50 # Tamanho da grade do mapa para alinhar
-
+        
     
+        pasta_assets = os.path.join(
+        os.path.dirname(__file__), 
+        "assets",
+        "personagem"
+        )
+
+        self.animacoes = {}
+        self.frame_atual = 0
+        self.intervalo_animacao = 120
+        self.ultimo_frame = pygame.time.get_ticks()
+        self.invulneravel_ate = 0
+
         try:
-            caminho_sprite = os.path.join(
-                os.path.dirname(os.path.abspath(__file__)),
-                "assets",
-                "personagem",
+            caminho_idle = os.path.join(
+                pasta_assets, 
                 "robo_idle.png"
-            )
-
-            print("Procurando sprite em:", caminho_sprite)
-
-            sprite_original = pygame.image.load(
-                caminho_sprite
-            ).convert_alpha()
-
-            self.sprite = pygame.transform.scale(
-                sprite_original,
+                )
+            imagem_idle = pygame.image.load(
+                caminho_idle).convert_alpha()
+            self.sprite_original = pygame.transform.scale(
+                imagem_idle,
                 (tamanho, tamanho)
             )
 
-            print("Sprite carregado com sucesso!")
+            self.sprite = self.sprite_original
+
+            for direcao in ["baixo", "cima", "esquerda", "direita"]:
+                quadros = []
+
+                for numero in range(1, 5):
+                    caminho = os.path.join(
+                        pasta_assets,
+                        f"{direcao}_{numero}.png"
+                    )
+
+                    imagem = pygame.image.load(
+                        caminho
+                    ).convert_alpha()
+
+                    imagem = pygame.transform.scale(
+                        imagem,
+                        (tamanho, tamanho)
+                    )
+
+                    quadros.append(imagem)
+
+                self.animacoes[direcao] = quadros
+
+            print("Todas as animações foram carregadas!")
 
         except Exception as erro:
-            print("Erro ao carregar sprite:", erro)
+            print("Erro ao carregar sprites:", erro)
+            self.sprite_original = None
             self.sprite = None
+            self.animacoes = {}
 
 
     def mover(self, largura_tela: int, altura_tela: int, lista_paredes: list, gerenciador_efeitos):
         """Movimentação fluida com alinhamento inteligente para não travar nas quinas."""
         teclas = pygame.key.get_pressed()
+        if teclas[pygame.K_d]:
+            print("Tecla D pressionada")
         
         # Captura os comandos
         if teclas[pygame.K_a] or teclas[pygame.K_LEFT]:     self.buffer_x, self.buffer_y = -1, 0
@@ -73,6 +109,16 @@ class Jogador(Entidade):
                 self.direcao_x = self.buffer_x
                 self.direcao_y = self.buffer_y
                 self.buffer_x, self.buffer_y = 0, 0
+
+        # Atualiza a direção visual do personagem
+        if self.direcao_x == -1:
+            self.direcao_visual = "esquerda"
+        elif self.direcao_x == 1:
+            self.direcao_visual = "direita"
+        elif self.direcao_y == -1:
+            self.direcao_visual = "cima"
+        elif self.direcao_y == 1:
+            self.direcao_visual = "baixo"
 
         # Aplica efeito de rastro se estiver em movimento
         if self.direcao_x != 0 or self.direcao_y != 0:
@@ -115,6 +161,48 @@ class Jogador(Entidade):
         if self.y < 0 or self.y > altura_tela - self.tamanho or any(rect_jogador.colliderect(p) for p in lista_paredes):
             self.y = pos_antiga_y
             self.direcao_y = 0
+    
+    def desenhar(self, tela):
+        em_movimento = (
+            self.direcao_x != 0 or self.direcao_y != 0
+        )
 
+        if em_movimento and self.animacoes:
+            quadros = self.animacoes.get(
+                self.direcao_visual, []
+            )
 
+            if quadros:
+                agora = pygame.time.get_ticks()
+
+                if agora - self.ultimo_frame >= self.intervalo_animacao:
+                    self.frame_atual = (
+                        self.frame_atual + 1
+                    ) % len(quadros)
+
+                    self.ultimo_frame = agora
+
+                imagem = quadros[self.frame_atual]
+            else:
+                imagem = self.sprite_original
+        else:
+            imagem = self.sprite_original
+            self.frame_atual = 0
+
+        agora = pygame.time.get_ticks()
+
+        if agora < self.invulneravel_ate:
+
+            # Pisca a cada 100 milissegundos
+            if (agora // 100) % 2 == 0:
+                if imagem is not None:
+                    tela.blit(imagem, (int(self.x), int(self.y)))
+                else:
+                    pygame.draw.rect(tela, self.cor, self.obter_rect())
+
+        else:
+            if imagem is not None:
+                tela.blit(imagem, (int(self.x), int(self.y)))
+            else:
+                pygame.draw.rect(tela, self.cor, self.obter_rect())
 
