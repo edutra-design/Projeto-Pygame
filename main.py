@@ -69,6 +69,12 @@ LIMITE_2_ESTRELAS = 0.60   # 60% ou mais  -> 2 estrelas (abaixo disso, 1 estrela
 fase_atual = 1
 moedas_coletadas = 0     # da fase atual
 estrelas_coletadas = 0   # da fase atual
+
+VIDAS_INICIAIS = 3
+vidas = VIDAS_INICIAIS
+TEMPO_INVULNERAVEL = 1500  # 1,5 segundo
+invulneravel_ate = 0
+
 pontos_fase = 0          # pontos da fase atual
 pontos_maximos_fase = 0  # máximo que dá para pegar na fase atual
 pontos_por_fase = {}     # {numero_da_fase: MELHOR pontuação} das fases já concluídas
@@ -344,18 +350,40 @@ def desenhar_hud_jogo():
     )
 
     desenhar_texto(
-        f"FASE: {fase_atual} / {len(map.Fases)}",
+        f"FASE: {fase_atual}",
         FONTE_PEQUENA,
         COR_TEXTO,
-        70,
+        55,
         20
     )
+
+    CORACAO_PIXEL = [
+        "01100110",
+        "11111111",
+        "11111111",
+        "01111110",
+        "00111100",
+        "00011000"
+    ]
+
+    for i in range(VIDAS_INICIAIS):
+        cor_coracao = (255, 50, 80) if i < vidas else (75, 75, 85)
+        for linha, pixels in enumerate(CORACAO_PIXEL):
+            for coluna, pixel in enumerate(pixels):
+                if pixel == "1":
+                    pygame.draw.rect(
+                        TELA,
+                        cor_coracao,
+                        (145 + i * 24 + coluna * 2,
+                         14 + linha * 2,
+                         2, 2)
+                    )
 
     desenhar_texto(
         f"PONTOS DA FASE: {pontos_fase}",
         FONTE_PEQUENA,
         (255, 215, 40),
-        270,
+        310,
         20
     )
 
@@ -363,7 +391,7 @@ def desenhar_hud_jogo():
         f"TOTAL: {pontos_total()}",
         FONTE_PEQUENA,
         (0, 255, 150),
-        480,
+        455,
         20
     )
 
@@ -371,7 +399,7 @@ def desenhar_hud_jogo():
         f"MOEDAS: {moedas_coletadas}  ESTRELAS: {estrelas_coletadas}",
         FONTE_PEQUENA,
         (255, 255, 120),
-        LARGURA - 130,
+        680,
         20
     )
 
@@ -382,6 +410,7 @@ def iniciar_fase(numero_da_fase):
     global fase_atual
     global estado_jogo
     global pontos_fase, moedas_coletadas, estrelas_coletadas, pontos_maximos_fase
+    global vidas, invulneravel_ate
 
     retorno_fase = map.carregar_fase(
         numero_da_fase
@@ -398,6 +427,9 @@ def iniciar_fase(numero_da_fase):
     pontos_fase = 0
     moedas_coletadas = 0
     estrelas_coletadas = 0
+
+    vidas = VIDAS_INICIAIS
+    invulneravel_ate = 0
 
     # máximo de pontos da fase = todas as moedas e estrelas do mapa recém-carregado
     pontos_maximos_fase = sum(
@@ -974,8 +1006,18 @@ while rodando:
             if inimigo.checar_colisao(
                 jogador
             ):
+                agora = pygame.time.get_ticks()
 
-                estado_jogo = "GAME_OVER"
+                if agora >= invulneravel_ate:
+                    vidas -= 1
+                    invulneravel_ate = agora + TEMPO_INVULNERAVEL
+                    jogador.invulneravel_ate = invulneravel_ate
+
+                    if vidas <= 0:
+                        estado_jogo = "GAME_OVER"
+
+                    break
+                
 
        
 
@@ -1023,10 +1065,11 @@ while rodando:
 
         centro_jogador = jogador.obter_rect().center
 
-        map.aplicar_iluminacao_pro(
-            TELA,
-            (centro_jogador[0] - cam_x, centro_jogador[1] - cam_y)
-        )
+        if fase_atual >= 6:
+         map.aplicar_iluminacao_pro(
+        TELA,
+        (centro_jogador[0] - cam_x, centro_jogador[1] - cam_y)
+    )
 
         # desenha o jogador na posição da tela (posição no mundo - câmera)
         pos_mundo = (jogador.x, jogador.y)
