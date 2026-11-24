@@ -10,6 +10,36 @@ from plasma import Plasma
 import map
 
 pygame.init()
+# Sistema de música
+pygame.mixer.init()
+
+def tocar_musica(nome):
+    pygame.mixer.music.stop()
+    pygame.mixer.music.load(f"assets/audio/{nome}.wav")
+    pygame.mixer.music.set_volume(0.25)
+    pygame.mixer.music.play(-1)
+# Começar com a música do menu
+tocar_musica("musica_menu")
+
+# Carregar efeitos sonoros
+SOM_MOEDA = pygame.mixer.Sound("assets/audio/moeda.wav")
+SOM_ESTRELA = pygame.mixer.Sound("assets/audio/estrela.wav")
+SOM_DANO = pygame.mixer.Sound("assets/audio/dano.wav")
+SOM_GAME_OVER = pygame.mixer.Sound("assets/audio/game_over.wav")
+SOM_CLIQUE = pygame.mixer.Sound("assets/audio/clique.wav")
+SOM_VITORIA = pygame.mixer.Sound("assets/audio/vitoria.wav")
+
+
+# Volume dos efeitos sonoros
+SOM_MOEDA.set_volume(0.4)
+SOM_ESTRELA.set_volume(0.5)
+SOM_DANO.set_volume(0.5)
+SOM_GAME_OVER.set_volume(0.6)
+SOM_CLIQUE.set_volume(0.4)
+SOM_VITORIA.set_volume(0.6)
+
+# Carregar música de fundo
+pygame.mixer.music.set_volume(0.25)
 
 LARGURA, ALTURA = 800, 600
 TELA = pygame.display.set_mode((LARGURA, ALTURA))
@@ -411,6 +441,8 @@ def iniciar_fase(numero_da_fase):
     global estado_jogo
     global pontos_fase, moedas_coletadas, estrelas_coletadas, pontos_maximos_fase
     global vidas, invulneravel_ate
+    pygame.mixer.music.play(-1)
+    tocar_musica("musica_fundo")
 
     retorno_fase = map.carregar_fase(
         numero_da_fase
@@ -752,7 +784,10 @@ def concluir_fase():
         "total": pontos_total(),
         "todas": all(f in melhor_nota for f in map.Fases),
     }
-
+    
+    pygame.mixer.music.stop()
+    SOM_VITORIA.play()
+    
     estado_jogo = "FASE_CONCLUIDA"
 
 
@@ -760,6 +795,7 @@ def avancar_apos_resumo():
     """Sai da tela de resumo e vai para a escolha de fase."""
     global estado_jogo
 
+    tocar_musica("musica_menu")
     estado_jogo = "SELECAO_FASE"
 
 
@@ -772,32 +808,42 @@ while rodando:
     def coletar_itens():
         global moedas_coletadas, estrelas_coletadas, pontos_fase
 
-        rect_jogador = jogador.obter_rect()
-        coletou = False
+    rect_jogador = jogador.obter_rect()
+    coletou = False
 
-        for linha in range(len(map.MAPA_ATUAL)):
-            for coluna in range(len(map.MAPA_ATUAL[linha])):
-                tipo = map.MAPA_ATUAL[linha][coluna]
+    for linha in range(len(map.MAPA_ATUAL)):
+        for coluna in range(len(map.MAPA_ATUAL[linha])):
+            tipo = map.MAPA_ATUAL[linha][coluna]
 
-                if tipo == 4 or tipo == 7:
-                    rect_item = pygame.Rect(
-                        coluna * map.TAMANHO_BLOCO,
-                        linha * map.TAMANHO_BLOCO,
-                        map.TAMANHO_BLOCO,
-                        map.TAMANHO_BLOCO
-                    )
+            if tipo == 4 or tipo == 7:
+                rect_item = pygame.Rect(
+                    coluna * map.TAMANHO_BLOCO,
+                    linha * map.TAMANHO_BLOCO,
+                    map.TAMANHO_BLOCO,
+                    map.TAMANHO_BLOCO
+                )
 
-                    if rect_jogador.colliderect(rect_item):
-                        if tipo == 4:
-                            moedas_coletadas += 1
-                            pontos_fase += PONTOS_MOEDA
-                        elif tipo == 7:
-                            estrelas_coletadas += 1
-                            pontos_fase += PONTOS_ESTRELA
-                        map.MAPA_ATUAL[linha][coluna] = 0
-                        coletou = True
-        if coletou:
-            map.desenhar_mapa(MAPA_PRONTO)
+                if rect_jogador.colliderect(rect_item):
+
+                    if tipo == 4:
+                        moedas_coletadas += 1
+                        pontos_fase += PONTOS_MOEDA
+                        SOM_MOEDA.play()
+
+                    elif tipo == 7:
+                        estrelas_coletadas += 1
+                        pontos_fase += PONTOS_ESTRELA
+                        SOM_ESTRELA.play()
+
+                    # Remover o item do mapa
+                    map.MAPA_ATUAL[linha][coluna] = 0
+
+                    # Indicar que houve uma recolha
+                    coletou = True
+
+    if coletou:
+        map.desenhar_mapa(MAPA_PRONTO)
+
 
     RELOGIO.tick(60)
 
@@ -819,22 +865,26 @@ while rodando:
 
 
             if estado_jogo == "MENU":
+                
 
                 if botao_jogar.collidepoint(
                     posicao_mouse
                 ):
+                    SOM_CLIQUE.play()
 
                     estado_jogo = "SELECAO_FASE"
 
                 elif botao_creditos.collidepoint(
                     posicao_mouse
                 ):
+                    SOM_CLIQUE.play()
 
                     estado_jogo = "CREDITOS"
 
                 elif botao_sair.collidepoint(
                     posicao_mouse
                 ):
+                    SOM_CLIQUE.play()
 
                     rodando = False
 
@@ -844,7 +894,10 @@ while rodando:
                 for numero, ret in RECTS_FASES.items():
 
                     if ret.collidepoint(posicao_mouse):
+                        SOM_CLIQUE.play()
 
+                        
+                
                         if fase_liberada(numero):
 
                             iniciar_fase(numero)
@@ -862,6 +915,7 @@ while rodando:
                 if botao_continuar.collidepoint(
                     posicao_mouse
                 ):
+                  
 
                     avancar_apos_resumo()
 
@@ -870,6 +924,7 @@ while rodando:
                 if botao_tentar_novamente.collidepoint(
                     posicao_mouse
                 ):
+                   
 
                     iniciar_fase(
                         fase_atual
@@ -880,7 +935,7 @@ while rodando:
                 elif botao_voltar_menu.collidepoint(
                     posicao_mouse
                 ):
-
+                    tocar_musica("musica_menu")
                     estado_jogo = "MENU"
 
         elif evento.type == pygame.KEYDOWN:
@@ -1003,17 +1058,18 @@ while rodando:
                 jogador
             )
 
-            if inimigo.checar_colisao(
-                jogador
-            ):
+            if inimigo.checar_colisao(jogador):
                 agora = pygame.time.get_ticks()
 
                 if agora >= invulneravel_ate:
                     vidas -= 1
+                    SOM_DANO.play()
                     invulneravel_ate = agora + TEMPO_INVULNERAVEL
                     jogador.invulneravel_ate = invulneravel_ate
 
                     if vidas <= 0:
+                        SOM_GAME_OVER.play()
+                        pygame.mixer.music.stop()
                         estado_jogo = "GAME_OVER"
 
                     break
